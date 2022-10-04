@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from EmQuantAPI import *
 from datetime import timedelta, datetime
 import time as _time
