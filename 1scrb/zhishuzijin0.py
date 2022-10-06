@@ -109,45 +109,6 @@ mpl.rcParams["font.sans-serif"]=["SimHei"]
 mpl.rcParams["axes.unicode_minus"]=False
 
 x1=['中证全指','沪深300','中证500','中证1000']
-data = xlrd.open_workbook(r'C:\xyzy\1lhjr\1scrb\zhishuzhangfu0.xls')
-table = data.sheets()[0]
-    
-y1=[]
-cap2 = table.col_values(2)
-for i in range(1,5):
-    y1.append(float('%.1f' % (float(cap2[i]))))
-
-plt.bar(x1,y1,align="center",hatch=" ",ec='gray',color=np.where(np.array(y1)>0,'r','c'))
-
-plt.xticks(rotation=0,fontsize=20)
-plt.yticks(fontsize=20)
-
-#绘制纵向柱状图,hatch定义柱图的斜纹填充，省略该参数表示默认不填充。
-#bar柱图函数还有以下参数：
-#颜色：color,可以取具体颜色如red(简写为r),也可以用rgb让每条柱子采用不同颜色。
-#描边：edgecolor（ec）：边缘颜色；linestyle（ls）：边缘样式；linewidth（lw）：边缘粗细
-#填充：hatch，取值：/,|,-,+,x,o,O,.,*
-#位置标志：tick_label
-
-for a,b in zip(x1,y1):
-
-    plt.text(a,b,b, ha='center', va= 'bottom',fontsize=20)
-
-plt.title('当日指数涨幅%',fontsize=20)
-plt.xlabel(u"")
-plt.ylabel(u"")
-plt.legend()
-plt.savefig(r'C:\xyzy\1lhjr\1scrb\zhishuzhangfu0.png',c = 'k')
-
-# 调节图像大小,清晰度
-plt.figure(figsize=(10,8),dpi=300)
-
-#指定字体为SimHei，用于显示中文，如果Ariel,中文会乱码
-mpl.rcParams["font.sans-serif"]=["SimHei"]
-#用来正常显示负号
-mpl.rcParams["axes.unicode_minus"]=False
-
-x1=['中证全指','沪深300','中证500','中证1000']
 data = xlrd.open_workbook(r'C:\xyzy\1lhjr\1scrb\zhishuzijin0.xls')
 table = data.sheets()[0]
 
