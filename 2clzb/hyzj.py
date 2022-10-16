@@ -5,6 +5,10 @@ from datetime import timedelta, datetime
 import time as _time
 import traceback
 from datetime import *
+import numpy as np
+import pandas as pd
+import xlrd
+import plotly_express as px
 
 def mainCallback(quantdata):
     """
@@ -84,8 +88,9 @@ try:
 
     date = (date.today() + timedelta(days = -0)).strftime("%Y-%m-%d")
 
-    data=c.css("CI005001.CI,CI005002.CI,CI005003.CI,CI005004.CI,CI005005.CI,CI005006.CI,CI005007.CI,CI005008.CI,CI005009.CI,CI005010.CI,CI005011.CI,CI005012.CI,CI005013.CI,CI005014.CI,CI005015.CI,CI005016.CI,CI005017.CI,CI005018.CI,CI005019.CI,CI005020.CI,CI005021.CI,CI005022.CI,CI005023.CI,CI005024.CI,CI005025.CI,CI005026.CI,CI005027.CI,CI005028.CI,CI005029.CI,CI005030.CI","NETINFLOW","TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    data.to_excel(r'C:\xyzy\1lhjr\2clzb\hyzj.xls', encoding='utf-8-sig', index=None)
+    data=c.css("CI005001.CI,CI005002.CI,CI005003.CI,CI005004.CI,CI005005.CI,CI005006.CI,CI005007.CI,CI005008.CI,CI005009.CI,CI005010.CI,CI005011.CI,CI005012.CI,CI005013.CI,CI005014.CI,CI005015.CI,CI005016.CI,CI005017.CI,CI005018.CI,CI005019.CI,CI005020.CI,CI005021.CI,CI005022.CI,CI005023.CI,CI005024.CI,CI005025.CI,CI005026.CI,CI005027.CI,CI005028.CI,CI005029.CI,CI005030.CI","NAME,NETINFLOW","TradeDate="+date+",AdjustFlag=1,Ispandas=1")
+    data = data.sort_values(by="NETINFLOW",ascending=False)
+    data.to_excel(r'C:\xyzy\1lhjr\2clzb\hyzj.xls')
 
 #退出
     data = logoutResult = c.stop()
@@ -95,94 +100,17 @@ except Exception as ee:
 else:
     print("demo end")
 
-#转整数
-import xlrd
-
-xin=[]
 data = xlrd.open_workbook(r'C:\xyzy\1lhjr\2clzb\hyzj.xls')
 table = data.sheets()[0]
-st = data.sheet_by_index(0)
-cap2 = table.col_values(1)
-for i in range(1,st.nrows):
-    xin.append(float('%.0f' % (float(cap2[i])/100000000)))
-
-from pandas import DataFrame
-n =['石油石化','煤炭','有色金属','电力及公用事业','钢铁','基础化工','建筑','建材','轻工制造','机械','电力设备及新能源','国防军工','汽车','商品零售','消费者服务','家电','纺织服装','医药','食品饮料','农林牧渔','银行','非银行金融','房地产','交通运输','电子','通信','计算机','传媒','综合','综合金融']
-l1 = n
-l2 = xin
-df = DataFrame({'名称': l1, '资金': l2})
-df.to_excel(r'C:\xyzy\1lhjr\2clzb\hyzj.xls', sheet_name='Sheet1', index=False) 
-
-a=[]
-data = xlrd.open_workbook(r'C:\xyzy\1lhjr\2clzb\hyzj.xls')
-table = data.sheets()[0]
-st = data.sheet_by_index(0)
-cap2 = table.col_values(1)
-for i in range(1,st.nrows):
-    a.append(cap2[i])
-
-from pandas import DataFrame
-l1 = n
-l2 = a
-df = DataFrame({'名称': l1, '行业资金': l2})
-df.to_excel(r'C:\xyzy\1lhjr\2clzb\hyzj.xls', sheet_name='Sheet1', index=False)
-
-# 排序
-import pandas as pd
-stexcel=pd.read_excel(r'C:\xyzy\1lhjr\2clzb\hyzj.xls')
-#ascending 默认等于True，按从小到大排列，改为False 按从大到小排
-stexcel.sort_values(by='行业资金',inplace=True,ascending=False)
-stexcel.to_excel(r'C:\xyzy\1lhjr\2clzb\hyzj.xls', sheet_name='Sheet1', index=False)
-
-
-#制图
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
-import xlrd
-
-# 调节图像大小,清晰度
-plt.figure(figsize=(25,15),dpi=300)
-
-#指定字体为SimHei，用于显示中文，如果Ariel,中文会乱码
-mpl.rcParams["font.sans-serif"]=["SimHei"]
-#用来正常显示负号
-mpl.rcParams["axes.unicode_minus"]=False
-
-x1=[]
-data = xlrd.open_workbook(r'C:\xyzy\1lhjr\2clzb\hyzj.xls')
-table = data.sheets()[0]
-st = data.sheet_by_index(0)
-cap2 = table.col_values(0)
-for i in range(1,st.nrows):
-    x1.append(cap2[i])
-
-y1=[]
-data = xlrd.open_workbook(r'C:\xyzy\1lhjr\2clzb\hyzj.xls')
-table = data.sheets()[0]
-st = data.sheet_by_index(0)
-cap2 = table.col_values(1)
-for i in range(1,st.nrows):
-    y1.append(cap2[i])
-    
-plt.bar(x1,y1,align="center",hatch=" ",ec='gray',color='c')
-plt.xticks(rotation=90,fontsize=15)
-plt.yticks(fontsize=40)
-
-#绘制纵向柱状图,hatch定义柱图的斜纹填充，省略该参数表示默认不填充。
-#bar柱图函数还有以下参数：
-#颜色：color,可以取具体颜色如red(简写为r),也可以用rgb让每条柱子采用不同颜色。
-#描边：edgecolor（ec）：边缘颜色；linestyle（ls）：边缘样式；linewidth（lw）：边缘粗细
-#填充：hatch，取值：/,|,-,+,x,o,O,.,*
-#位置标志：tick_label
-
-for a,b in zip(x1,y1):
-
-    plt.text(a,b,'%.0f' % b, ha='center', va= 'bottom',fontsize=25)
-
-plt.title('中信一级行业当前资金（亿）',fontsize=40)
-plt.xlabel(u"")
-plt.ylabel(u"")
-plt.legend()
-plt.savefig(r'C:\xyzy\1lhjr\2clzb\hyzj.png',c = 'k')
-print('png end')
+x1=[]   
+cap1 = table.col_values(2)
+for i in range(1,31):
+    x1.append(cap1[i].strip("申万一级指数"))
+y1=[]   
+cap2 = table.col_values(3)
+for i in range(1,31):
+    y1.append((float(cap2[i])/100000000))
+fig = px.bar(data,x=x1,y=y1,text=y1)
+fig.update_traces(texttemplate='%{text:.0f}',textposition='inside',marker=dict(color=np.where(np.array(y1)>0,'red','limegreen'))) 
+fig.update_layout(width=1200,height=600,title={'text': "当日行业资金（亿元）",'y':0.98,'x':0.5,'xanchor': 'center','yanchor': 'top'},title_font_size=45,font_size=20,title_font_color='red',xaxis_tickangle=-45,showlegend=False,xaxis_title=None,yaxis_title=None)
+fig.write_image(r'C:\xyzy\1lhjr\2clzb\hyzj.png')

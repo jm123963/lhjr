@@ -29,9 +29,9 @@ class Graphs:
         ct = style['Heading1']
         # 单独设置样式相关属性
         ct.fontName = 'SimSun'      # 字体名
-        ct.fontSize = 18           # 字体大小
+        ct.fontSize = 16          # 字体大小
         ct.leading = 20           # 行间距
-        ct.textColor = colors.black     # 字体颜色
+        ct.textColor = colors.red     # 字体颜色
         ct.alignment = 1    # 居中
         ct.bold = True
         # 创建标题对应的段落，并且返回
@@ -47,7 +47,7 @@ class Graphs:
         ct.fontName = 'SimSun'      # 字体名
         ct.fontSize = 10            # 字体大小
         ct.leading = 15             # 行间距
-        ct.textColor = colors.black     # 字体颜色
+        ct.textColor = colors.red     # 字体颜色
         ct.alignment = 2    # 居中
         ct.bold = True
         # 创建标题对应的段落，并且返回
@@ -107,7 +107,7 @@ class Graphs:
         ct.fontName = 'SimSun'  # 字体名
         ct.fontSize = 18  # 字体大小
         ct.leading = 15 # 行间距
-        ct.textColor = colors.black  # 字体颜色
+        ct.textColor = colors.red  # 字体颜色
         ct.alignment = 1    # 居中
         # 创建标题对应的段落，并且返回
         return Paragraph(title, ct)
@@ -116,21 +116,21 @@ class Graphs:
     @staticmethod
     def draw_img(path):
         img = Image(path)       # 读取指定路径下的图片
-        img.drawWidth = 18*cm        # 设置图片的宽度
+        img.drawWidth = 22*cm        # 设置图片的宽度
         img.drawHeight = 9*cm       # 设置图片的高度
         return img
 
     @staticmethod
     def draw_img1(path):
         img1 = Image(path)       # 读取指定路径下的图片
-        img1.drawWidth = 25*cm        # 设置图片的宽度
+        img1.drawWidth = 22*cm        # 设置图片的宽度
         img1.drawHeight = 10*cm       # 设置图片的高度
         return img1
     
     @staticmethod
     def draw_img2(path):
         img2 = Image(path)       # 读取指定路径下的图片
-        img2.drawWidth = 25*cm        # 设置图片的宽度
+        img2.drawWidth = 22*cm        # 设置图片的宽度
         img2.drawHeight = 18*cm       # 设置图片的高度
         return img2
 

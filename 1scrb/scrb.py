@@ -14,6 +14,7 @@ from pandas import DataFrame
 from pylab import mpl
 from pandas.plotting import table
 import plotly_express as px
+import plotly.graph_objects as go
 
 def mainCallback(quantdata):
     """
@@ -405,39 +406,19 @@ l6 = a60
 l7 = a120
 l8 = a250
 df = DataFrame({'名称': l1, '当日涨幅': l2, '5日涨幅': l3, '10日涨幅': l4, '20日涨幅': l5, '60日涨幅': l6, '120日涨幅': l7, '250日涨幅': l8})
-df.to_excel(r'C:\xyzy\1lhjr\1scrb\zhishuzhangfu.xls', sheet_name='Sheet1', index=False)
 
-import pandas as pd
-import matplotlib.pyplot as plt
-from pandas.plotting import table
-
-# 调节图像大小,清晰度
-plt.figure(figsize=(20,8),dpi=500)
-
-# 解决 画图中文 方块问题
-from pylab import mpl
-mpl.rcParams['font.sans-serif'] = ['Microsoft YaHei']    # 指定默认字体：解决plot不能显示中文问题
-mpl.rcParams['axes.unicode_minus'] = False
-
-# figsize 指定figure的宽和高，单位为英寸；
-# dpi参数指定绘图对象的分辨率，即每英寸多少个像素，缺省值为80      1英寸等于2.5cm,A4纸是 21*30cm的纸张
-fig = plt.figure(figsize=(5, 1), dpi=500)
-
-# frameon:是否显示边框
-ax = fig.add_subplot(111, frame_on=False,)
-
-# 隐藏x轴 y轴
-ax.xaxis.set_visible(False)  # hide the x axis
-ax.yaxis.set_visible(False)  # hide the y axis
-
-# 读取excel
-datas = pd.read_excel(r'C:\xyzy\1lhjr\1scrb\zhishuzhangfu.xls')
-
-# 生成图片
-table(ax, datas, loc='center')  # where df is your data frame
-
-# 保存图片
-plt.savefig(r'C:\xyzy\1lhjr\1scrb\zhishuzhangfubiaoge.png')
+fig = go.Figure(
+    data=[go.Table(
+        header=dict(values=list(df.columns),  # 表头取值是data列属性
+                    fill_color='paleturquoise',font_size=14,
+        height=60),  # 填充色和文本位置
+                
+        cells=dict(values=[l1,l2,l3,l4,l5,l6,l7,l8],  # 单元格的取值就是每个列属性的Series取值
+                   fill_color='lavender',font_size=14,
+        height=60)
+    )]
+)
+fig.write_image(r'C:\xyzy\1lhjr\1scrb\zhishuzhangfubiaoge.png')
 
 data = xlrd.open_workbook(r'C:\xyzy\1lhjr\1scrb\zhishuzijin0.xls')
 table = data.sheets()[0]
@@ -675,40 +656,19 @@ l6 = a60
 l7 = a120
 l8 = a250
 df = DataFrame({'名称': l1, '当日涨幅': l2, '5日涨幅': l3, '10日涨幅': l4, '20日涨幅': l5, '60日涨幅': l6, '120日涨幅': l7, '250日涨幅': l8})
-df.to_excel(r'C:\xyzy\1lhjr\1scrb\fenggezhangfu.xls', sheet_name='Sheet1', index=False)
 
-import pandas as pd
-import matplotlib.pyplot as plt
-from pandas.plotting import table
-
-# 调节图像大小,清晰度
-plt.figure(figsize=(20,8),dpi=500)
-
-# 解决 画图中文 方块问题
-from pylab import mpl
-mpl.rcParams['font.sans-serif'] = ['Microsoft YaHei']    # 指定默认字体：解决plot不能显示中文问题
-mpl.rcParams['axes.unicode_minus'] = False
-
-# figsize 指定figure的宽和高，单位为英寸；
-# dpi参数指定绘图对象的分辨率，即每英寸多少个像素，缺省值为80      1英寸等于2.5cm,A4纸是 21*30cm的纸张
-fig = plt.figure(figsize=(5, 1.5), dpi=500)
-
-# frameon:是否显示边框
-ax = fig.add_subplot(111, frame_on=False,)
-
-# 隐藏x轴 y轴
-ax.xaxis.set_visible(False)  # hide the x axis
-ax.yaxis.set_visible(False)  # hide the y axis
-
-# 读取excel
-datas = pd.read_excel(r'C:\xyzy\1lhjr\1scrb\fenggezhangfu.xls')
-datas = datas.iloc[:,:]
-
-# 生成图片
-table(ax, datas, loc='center')  # where df is your data frame
-
-# 保存图片
-plt.savefig(r'C:\xyzy\1lhjr\1scrb\fenggezhangfubiaoge.png')
+fig = go.Figure(
+    data=[go.Table(
+        header=dict(values=list(df.columns),  # 表头取值是data列属性
+                    fill_color='paleturquoise',font_size=14,
+        height=35),  # 填充色和文本位置
+                
+        cells=dict(values=[l1,l2,l3,l4,l5,l6,l7,l8],  # 单元格的取值就是每个列属性的Series取值
+                   fill_color='lavender',font_size=14,
+        height=35)
+    )]
+)
+fig.write_image(r'C:\xyzy\1lhjr\1scrb\fenggezhangfubiaoge.png')
 
 data = xlrd.open_workbook(r'C:\xyzy\1lhjr\1scrb\fenggezijin0.xls')
 table = data.sheets()[0]
@@ -838,20 +798,7 @@ fig.update_traces(texttemplate='%{text:.0f}',textposition='inside',marker=dict(c
 fig.update_layout(width=1200,height=600,title={'text': "120日行业涨幅%",'y':0.98,'x':0.5,'xanchor': 'center','yanchor': 'top'},title_font_size=45,font_size=20,title_font_color='red',xaxis_tickangle=-45,showlegend=False,xaxis_title=None,yaxis_title=None)
 fig.write_image(r'C:\xyzy\1lhjr\1scrb\hangyezhangfu120.png')
 
-data = xlrd.open_workbook(r'C:\xyzy\1lhjr\1scrb\hangyezhangfu250.xls')
-table = data.sheets()[0]
-x1=[]   
-cap1 = table.col_values(3)
-for i in range(1,32):
-    x1.append(cap1[i].strip("申万一级指数"))
-y1=[]   
-cap2 = table.col_values(4)
-for i in range(1,32):
-    y1.append(cap2[i])
-fig = px.bar(data,x=x1,y=y1,text=y1)
-fig.update_traces(texttemplate='%{text:.0f}',textposition='inside',marker=dict(color=np.where(np.array(y1)>0,'red','limegreen'))) 
-fig.update_layout(width=1200,height=600,title={'text': "250日行业涨幅%",'y':0.98,'x':0.5,'xanchor': 'center','yanchor': 'top'},title_font_size=45,font_size=20,title_font_color='red',xaxis_tickangle=-45,showlegend=False,xaxis_title=None,yaxis_title=None)
-fig.write_image(r'C:\xyzy\1lhjr\1scrb\hangyezhangfu250.png')
+
 
 data = xlrd.open_workbook(r'C:\xyzy\1lhjr\1scrb\hangyezijin.xls')
 table = data.sheets()[0]
@@ -993,22 +940,22 @@ class Graphs:
     @staticmethod
     def draw_img(path):
         img = Image(path)       # 读取指定路径下的图片
-        img.drawWidth = 20*cm        # 设置图片的宽度
+        img.drawWidth = 22*cm        # 设置图片的宽度
         img.drawHeight = 10*cm       # 设置图片的高度
         return img
 
     @staticmethod
     def draw_img1(path):
         img1 = Image(path)       # 读取指定路径下的图片
-        img1.drawWidth = 20*cm        # 设置图片的宽度
+        img1.drawWidth = 22*cm        # 设置图片的宽度
         img1.drawHeight = 11*cm       # 设置图片的高度
         return img1
 
     @staticmethod
     def draw_img2(path):
         img2 = Image(path)       # 读取指定路径下的图片
-        img2.drawWidth = 20*cm        # 设置图片的宽度
-        img2.drawHeight = 5*cm       # 设置图片的高度
+        img2.drawWidth = 22*cm        # 设置图片的宽度
+        img2.drawHeight = 11*cm       # 设置图片的高度
         return img2
 
 date = (datetime.today() + timedelta(days = -0)).strftime("%Y-%m-%d")

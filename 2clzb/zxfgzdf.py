@@ -228,7 +228,6 @@ plt.xticks(rotation=90,fontsize=40)
 plt.yticks(fontsize=40)
 
 plt.legend(loc='best')
-plt.title('中信风格涨跌幅（%）',fontsize=40)
+plt.title('中信风格走势图',fontsize=40)
 plt.savefig(r'C:\xyzy\1lhjr\2clzb\zxfgzdf.png',c = 'k')
-plt.show()
 print('png end')

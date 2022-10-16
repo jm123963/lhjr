@@ -6,6 +6,10 @@ from datetime import timedelta, datetime
 import time as _time
 import traceback
 from datetime import *
+import numpy as np
+import pandas as pd
+import xlrd
+import plotly_express as px
 
 
 def mainCallback(quantdata):
@@ -85,8 +89,8 @@ try:
 
     date = datetime.today().strftime("%Y-%m-%d")
     # 指数 涨跌幅
-    data=c.css("000985.CSI,000016.SH,000300.SH,000905.SH,000852.SH,399006.SZ,000688.SH","DIFFERRANGEW","TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
-    data.to_excel(r'C:\xyzy\1lhjr\2clzb\agsczdf.xls', encoding='utf-8-sig', index=None)
+    data=c.css("000985.CSI,000016.SH,000300.SH,000905.SH,000852.SH,399006.SZ,000688.SH","NAME,DIFFERRANGEW","TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    data.to_excel(r'C:\xyzy\1lhjr\2clzb\agsczdf.xls')
 
 #退出
     data = logoutResult = c.stop()
@@ -96,47 +100,17 @@ except Exception as ee:
 else:
     print("demo end")
     
-# to png
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import xlrd
-import numpy as np
-
-# 调节图像大小,清晰度
-plt.figure(figsize=(25,15),dpi=500)
-
-#指定字体为SimHei，用于显示中文，如果Ariel,中文会乱码
-mpl.rcParams["font.sans-serif"]=["SimHei"]
-#用来正常显示负号
-mpl.rcParams["axes.unicode_minus"]=False
-
-x1 = ['中证全指','上证50','沪深300','中证500','中证1000','创业板指','科创50']
-
-y1=[]
 data = xlrd.open_workbook(r'C:\xyzy\1lhjr\2clzb\agsczdf.xls')
 table = data.sheets()[0]
-st = data.sheet_by_index(0)
-cap2 = table.col_values(2)
-for i in range(1,st.nrows):
-    y1.append(float('%.1f' % (float(cap2[i]))))
-
-plt.bar(x1,y1,align="center",hatch=" ",ec='gray',color='c')
-plt.xticks(fontsize=40)
-plt.yticks(fontsize=40)
-
-#绘制纵向柱状图,hatch定义柱图的斜纹填充，省略该参数表示默认不填充。
-#bar柱图函数还有以下参数：
-#颜色：color,可以取具体颜色如red(简写为r),也可以用rgb让每条柱子采用不同颜色。
-#描边：edgecolor（ec）：边缘颜色；linestyle（ls）：边缘样式；linewidth（lw）：边缘粗细
-#填充：hatch，取值：/,|,-,+,x,o,O,.,*
-#位置标志：tick_label
-
-for a,b in zip(x1,y1):
-
-    plt.text(a,b,b, ha='center', va= 'bottom',fontsize=40)
-
-plt.title('A股主要指数周涨跌幅%',fontsize=40)
-plt.xlabel(u"")
-plt.ylabel(u"")
-plt.legend()
-plt.savefig(r'C:\xyzy\1lhjr\2clzb\agsczdf.png',c = 'k')
+x1=[]   
+cap1 = table.col_values(3)
+for i in range(1,8):
+    x1.append(cap1[i].strip("指数"))
+y1=[]   
+cap2 = table.col_values(4)
+for i in range(1,8):
+    y1.append(cap2[i])
+fig = px.bar(data,x=x1,y=y1,text=y1)
+fig.update_traces(texttemplate='%{text:.0f}',textposition='inside',marker=dict(color=np.where(np.array(y1)>0,'red','limegreen'))) 
+fig.update_layout(width=1200,height=600,title={'text': "A股主要指数周涨跌幅%",'y':0.98,'x':0.5,'xanchor': 'center','yanchor': 'top'},title_font_size=45,font_size=20,title_font_color='red',xaxis_tickangle=-45,showlegend=False,xaxis_title=None,yaxis_title=None)
+fig.write_image(r'C:\xyzy\1lhjr\2clzb\agsczdf.png')
