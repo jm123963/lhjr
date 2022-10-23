@@ -21,15 +21,15 @@ end_time = '20220331'
 
 # ======= 此处需修改
 # 这里填写文件夹的绝对路径。
-file_path = r'/Users/xbx/Desktop/邢不行技术指标计算代码/股票数据/'
+file_path = r'C:\xyzy\1lhjr\lh\邢不行KDJ指标回测数据代码/股票数据/'
 # 如想回测指数相关内容，请使用下方代码
-# file_path = r'/Users/xbx/Desktop/邢不行技术指标计算代码/指数数据/'
+file_path = r'C:\xyzy\1lhjr\lh\邢不行KDJ指标回测数据代码/指数数据/'
 
 # 获取文件夹下的所有csv文件
 file_list = os.listdir(file_path)
 file_list = [f for f in file_list if '.csv' in f]
 # 如需知道某个股票的指标信号和数值，可使用下方代码
-# file_list = ['sh600000.csv']
+file_list = ['sh600000.csv']
 
 
 dfs = []

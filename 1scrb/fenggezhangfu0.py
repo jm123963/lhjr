@@ -90,6 +90,7 @@ try:
     date = datetime.today().strftime("%Y-%m-%d")
     # 指数 N日涨跌幅
     data=c.css("399373.SZ,399375.SZ,399377.SZ,399372.SZ,399374.SZ,399376.SZ","DIFFERRANGEN","N=0,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    print(data)
     data.to_excel(r'C:\xyzy\1lhjr\1scrb\fenggezhangfu0.xls', encoding='utf-8-sig', index=None)
 
 #退出
@@ -117,7 +118,7 @@ data = xlrd.open_workbook(r'C:\xyzy\1lhjr\1scrb\fenggezhangfu0.xls')
 table = data.sheets()[0]
     
 y1=[]   
-cap2 = table.col_values(2)
+cap2 = table.col_values(3)
 for i in range(1,7):
     y1.append(float('%.1f' % (float(cap2[i]))))
 
