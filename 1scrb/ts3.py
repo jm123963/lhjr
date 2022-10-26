@@ -16,7 +16,6 @@ from pandas.plotting import table
 import plotly_express as px
 import plotly.graph_objects as go
 
-
 def mainCallback(quantdata):
     """
     mainCallback 是主回调函数，可捕捉如下错误
@@ -92,11 +91,14 @@ try:
         print("login in fail")
         exit()
 
-    # 风格当日涨跌幅
-    date = datetime.today().strftime("%Y-%m-%d")
-    data=c.css("399373.SZ,399375.SZ,399377.SZ,399372.SZ,399374.SZ,399376.SZ","NAME,DIFFERRANGEN","N=0,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
-    data.to_excel(r'C:\xyzy\1lhjr\1scrb\fenggezhangfu0.xls', index=None)
-    print(data)
+    # 指数 （日）主力净流入资金
+    date = (datetime.today() + timedelta(days = -0)).strftime("%Y-%m-%d")
+    zszj0=c.css("000985.CSI,000300.SH,000905.SH,000852.SH","NAME,NETINFLOW","TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    date = (datetime.today() + timedelta(days = -1)).strftime("%Y-%m-%d")
+    zszj1=c.css("000985.CSI,000300.SH,000905.SH,000852.SH","NAME,NETINFLOW","TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    date = (datetime.today() + timedelta(days = -2)).strftime("%Y-%m-%d")
+    zszj2=c.css("000985.CSI,000300.SH,000905.SH,000852.SH","NAME,NETINFLOW","TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+
 
 #退出
     data = logoutResult = c.stop()
@@ -105,4 +107,25 @@ except Exception as ee:
     traceback.print_exc()
 else:
     print("demo end")
+
+# 风格涨幅
+# 缺失值赋0
+zszj0.fillna(0,inplace=True)
+# 数据合并
+zszj3=pd.concat([zszj0,zszj1,zszj2],names=None,axis=1,ignore_index=True)
+zszj3['zszj3']=zszj3[3]+zszj3[7]+zszj3[11]
+zszj3['zszj3'] = zszj3['zszj3']/100000000
+# 删除无用列
+zszj3.drop(zszj3.columns[[0,1,4,5,6,8,9,10]],axis = 1,inplace = True)
+# 变更列名
+zszj3.columns=['指数', 'zszj0', 'zszj1', 'zszj2', 'zszj3']
+# 删除特定字符
+zszj3['指数'] = zszj3['指数'].str.replace('指数', '')
+print(zszj3)
+
+fig = px.bar(zszj3,x='指数',y='zszj3',text='zszj3')
+fig.update_traces(texttemplate='%{text:.0f}',textposition='inside',marker=dict(color=np.where(np.array(zszj3['zszj3'])>0,'red','limegreen'))) 
+fig.update_layout(width=1200,height=600,title={'text': "3日指数资金（亿元）",'y':0.98,'x':0.5,'xanchor': 'center','yanchor': 'top'},title_font_size=45,font_size=35,title_font_color='red',showlegend=False,xaxis_title=None,yaxis_title=None)
+fig.write_image(r'C:\xyzy\1lhjr\1scrb\zszj3.png',scale=3)
+fig.show()
 
