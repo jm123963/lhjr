@@ -1,31 +1,11 @@
-import dash
-import dash_core_components as dcc  #也可以from dash import dcc
-import dash_html_components as html #也可以from dash import html
-from dash.dependencies import Input, Output
-import plotly.graph_objects as go
-
-app = dash.Dash(__name__)
-
-app.layout = html.Div([
-    html.P("Color:"),
-    dcc.Dropdown(
-        id="dropdown",
-        options=[
-            {'label': x, 'value': x}
-            for x in ['Gold', 'MediumTurquoise', 'LightGreen']
-        ],
-        value='Gold',
-        clearable=False,
-    ),
-    dcc.Graph(id="graph"),
-])
-
-@app.callback(
-    Output("graph", "figure"), 
-    [Input("dropdown", "value")])
-def display_color(color):
-    fig = go.Figure(
-        data=go.Bar(y=[2, 3, 1], marker_color=color))
-    return fig
-
-app.run_server(debug=True)
+    df=c.csd(code,"CLOSE",days,""+date+"",f"period={period},adjustflag=3,curtype=1,order=1,market=CNSESH,RowCODES=none,Ispandas=1")
+    df.CODES = df.CODES.str.replace('399373.SZ','大盘价值')
+    df.CODES = df.CODES.str.replace('399377.SZ','小盘价值')
+    df.CODES = df.CODES.str.replace('399372.SZ','大盘成长')
+    df.CODES = df.CODES.str.replace('399376.SZ','小盘成长')
+    df.CODES = df.CODES.str.replace('CI005917.CI','金融')
+    df.CODES = df.CODES.str.replace('CI005918.CI','周期')
+    df.CODES = df.CODES.str.replace('CI005919.CI','消费')
+    df.CODES = df.CODES.str.replace('CI005920.CI','成长')
+    df.CODES = df.CODES.str.replace('CI005921.CI','稳定')
+    fig = px.line(df,x='DATES', y='CLOSE',color=df.CODES)

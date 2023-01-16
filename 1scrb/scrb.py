@@ -38,9 +38,11 @@ loginResult = c.start("ForceLogin=1", '')
 
 # 当前时间
 date = datetime.today().strftime("%Y-%m-%d")
+tradedates=c.tradedates("2021-01-01", ""+date+"")
 offday=[-1,-5,-10,-20,-60,-120,-250]
-zscode="000985.CSI,000300.SH,000905.SH,000852.SH"
-fgcode="399373.SZ,399372.SZ,399377.SZ,399376.SZ"
+zjday=[-1,-5,-10]
+zscode="000985.CSI,000300.SH,000905.SH,399303.SZ"
+fgcode="399373.SZ,399377.SZ,399372.SZ,399376.SZ"
 hfcode="CI005917.CI,CI005918.CI,CI005919.CI,CI005920.CI,CI005921.CI"
 hycode="801010.SWI,801030.SWI,801040.SWI,801050.SWI,801080.SWI,801110.SWI,801120.SWI,801130.SWI,801140.SWI,801150.SWI,801160.SWI,801170.SWI,801180.SWI,\
         801200.SWI,801210.SWI,801230.SWI,801710.SWI,801720.SWI,801730.SWI,801740.SWI,801750.SWI,801760.SWI,801770.SWI,801780.SWI,801790.SWI,801880.SWI,\
@@ -83,9 +85,9 @@ gncode = "861001.EI,861003.EI,861004.EI,861005.EI,861007.EI,861008.EI,861009.EI,
         861453.EI,861454.EI,861455.EI,861456.EI,861457.EI,861458.EI,861459.EI,861460.EI,861461.EI,861462.EI,861463.EI,861464.EI,861465.EI,861466.EI,861467.EI,\
         861468.EI,861469.EI,861470.EI,861471.EI,861472.EI,861473.EI"
 
-def zszs(start,period,title,image):
+def zzqzzs(start,period,title,image):
     # 指数 开盘价 收盘价 最高价 最低价 成交量
-    df=c.csd("000985.CSI","OPEN,CLOSE,HIGH,LOW,VOLUME",start,""+date+"",f"period={period},adjustflag=1,curtype=1,order=1,market=CNSESH,Ispandas=1").dropna()
+    df=c.csd("000985.CSI","OPEN,CLOSE,HIGH,LOW,VOLUME",start,""+date+"",f"period={period},adjustflag=1,curtype=1,order=1,market=CNSESH,Rowindex=none,Ispandas=1").dropna()
     df.VOLUME=df.VOLUME/100000000
     trace1 = {
       "name":"K线图","type": "candlestick", 
@@ -107,19 +109,23 @@ def zszs(start,period,title,image):
     fig = go.Figure(data=data, layout=layout)
     fig.write_image(Fr'C:\xyzy\1lhjr\1scrb\{image}.png',scale=3)
 
-def fgzs(code,days,period,text,image):
+def zs(code,days,period,text,image):
     # 走势
-    df=c.csd(code,"CLOSE",days,""+date+"",f"period={period},adjustflag=3,curtype=1,order=1,market=CNSESH,Ispandas=1")
-    df.index = df.index.str.replace('399373.SZ','大盘价值')
-    df.index = df.index.str.replace('399377.SZ','小盘价值')
-    df.index = df.index.str.replace('399372.SZ','大盘成长')
-    df.index = df.index.str.replace('399376.SZ','小盘成长')
-    df.index = df.index.str.replace('CI005917.CI','金融')
-    df.index = df.index.str.replace('CI005918.CI','周期')
-    df.index = df.index.str.replace('CI005919.CI','消费')
-    df.index = df.index.str.replace('CI005920.CI','成长')
-    df.index = df.index.str.replace('CI005921.CI','稳定')
-    fig = px.line(df,x='DATES', y='CLOSE',color=df.index)
+    df=c.csd(code,"CLOSE",days,""+date+"",f"period={period},adjustflag=3,curtype=1,order=1,market=CNSESH,Rowindex=none,Ispandas=1")
+    df.CODES = df.CODES.str.replace('000985.CSI','中证全指')
+    df.CODES = df.CODES.str.replace('000300.SH','沪深300')
+    df.CODES = df.CODES.str.replace('000905.SH','中证500')
+    df.CODES = df.CODES.str.replace('399303.SZ','国证2000')
+    df.CODES = df.CODES.str.replace('399373.SZ','大盘价值')
+    df.CODES = df.CODES.str.replace('399377.SZ','小盘价值')
+    df.CODES = df.CODES.str.replace('399372.SZ','大盘成长')
+    df.CODES = df.CODES.str.replace('399376.SZ','小盘成长')
+    df.CODES = df.CODES.str.replace('CI005917.CI','金融')
+    df.CODES = df.CODES.str.replace('CI005918.CI','周期')
+    df.CODES = df.CODES.str.replace('CI005919.CI','消费')
+    df.CODES = df.CODES.str.replace('CI005920.CI','成长')
+    df.CODES = df.CODES.str.replace('CI005921.CI','稳定')
+    fig = px.line(df,x='DATES', y='CLOSE',color=df.CODES)
     fig.update_layout(xaxis = dict(tickmode='linear',tick0 = 1,dtick = 24),width=1200,height=600,title={'text': text,'y':1,'x':0.5,'xanchor': 'center',
                     'yanchor': 'top'},title_font_size=35,font_size=15,title_font_color='red',xaxis_title=None,yaxis_title=None,xaxis_tickangle=-45,
                     legend=dict(orientation="h",yanchor="bottom",y=1,xanchor="right",x=1))
@@ -128,18 +134,18 @@ def fgzs(code,days,period,text,image):
 
 def zszfb():
     # 指数涨幅表
-    df1=c.css(zscode,"NAME,DIFFERRANGEN","N=-1,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df5=c.css(zscode,"NAME,DIFFERRANGEN","N=-5,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df10=c.css(zscode,"NAME,DIFFERRANGEN","N=-10,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df20=c.css(zscode,"NAME,DIFFERRANGEN","N=-20,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df60=c.css(zscode,"NAME,DIFFERRANGEN","N=-60,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df120=c.css(zscode,"NAME,DIFFERRANGEN","N=-120,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df250=c.css(zscode,"NAME,DIFFERRANGEN","N=-250,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
+    df1=c.css(zscode,"NAME,DIFFERRANGEN","N=-1,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df5=c.css(zscode,"NAME,DIFFERRANGEN","N=-5,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df10=c.css(zscode,"NAME,DIFFERRANGEN","N=-10,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df20=c.css(zscode,"NAME,DIFFERRANGEN","N=-20,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df60=c.css(zscode,"NAME,DIFFERRANGEN","N=-60,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df120=c.css(zscode,"NAME,DIFFERRANGEN","N=-120,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df250=c.css(zscode,"NAME,DIFFERRANGEN","N=-250,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
     # 数据合并
     dfb=pd.concat([df1,df5,df10,df20,df60,df120,df250],names=None,axis=1,ignore_index=True)
     # 数据筛选
     # 删除无用列
-    dfb.drop(dfb.columns[[0,3,4,6,7,9,10,12,13,15,16,18,19]],axis = 1,inplace = True)
+    dfb.drop(dfb.columns[[0,1,4,5,6,8,9,10,12,13,14,16,17,18,20,21,22,24,25,26]],axis = 1,inplace = True)
     # 变更列名
     dfb.columns=['指数', '当日涨幅', '累计5日涨幅', '累计10日涨幅', '累计20日涨幅', '累计60日涨幅', '累计120日涨幅', '累计250日涨幅']
     # 删除特定字符
@@ -170,18 +176,18 @@ def zszfb():
 
 def fgzfb():
     #风格涨幅表格
-    df1=c.css(fgcode,"NAME,DIFFERRANGEN","N=-1,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df5=c.css(fgcode,"NAME,DIFFERRANGEN","N=-5,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df10=c.css(fgcode,"NAME,DIFFERRANGEN","N=-10,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df20=c.css(fgcode,"NAME,DIFFERRANGEN","N=-20,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df60=c.css(fgcode,"NAME,DIFFERRANGEN","N=-60,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df120=c.css(fgcode,"NAME,DIFFERRANGEN","N=-120,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df250=c.css(fgcode,"NAME,DIFFERRANGEN","N=-250,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
+    df1=c.css(fgcode,"NAME,DIFFERRANGEN","N=-1,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df5=c.css(fgcode,"NAME,DIFFERRANGEN","N=-5,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df10=c.css(fgcode,"NAME,DIFFERRANGEN","N=-10,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df20=c.css(fgcode,"NAME,DIFFERRANGEN","N=-20,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df60=c.css(fgcode,"NAME,DIFFERRANGEN","N=-60,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df120=c.css(fgcode,"NAME,DIFFERRANGEN","N=-120,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df250=c.css(fgcode,"NAME,DIFFERRANGEN","N=-250,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
     # 数据合并
     dfb=pd.concat([df1,df5,df10,df20,df60,df120,df250],names=None,axis=1,ignore_index=True)
     # 数据筛选
     # 删除无用列
-    dfb.drop(dfb.columns[[0,3,4,6,7,9,10,12,13,15,16,18,19]],axis = 1,inplace = True)
+    dfb.drop(dfb.columns[[0,1,4,5,6,8,9,10,12,13,14,16,17,18,20,21,22,24,25,26]],axis = 1,inplace = True)
     # 变更列名
     dfb.columns=['风格指数', '当日涨幅', '累计5日涨幅', '累计10日涨幅', '累计20日涨幅', '累计60日涨幅', '累计120日涨幅', '累计250日涨幅']
     # 删除特定字符
@@ -212,22 +218,22 @@ def fgzfb():
 
 def hfzfb():
     #行业风格涨幅表格
-    df1=c.css(hfcode,"NAME,DIFFERRANGEN","N=-1,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df5=c.css(hfcode,"NAME,DIFFERRANGEN","N=-5,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df10=c.css(hfcode,"NAME,DIFFERRANGEN","N=-10,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df20=c.css(hfcode,"NAME,DIFFERRANGEN","N=-20,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df60=c.css(hfcode,"NAME,DIFFERRANGEN","N=-60,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df120=c.css(hfcode,"NAME,DIFFERRANGEN","N=-120,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
-    df250=c.css(hfcode,"NAME,DIFFERRANGEN","N=-250,TradeDate="+date+",AdjustFlag=1,Ispandas=1")
+    df1=c.css(hfcode,"NAME,DIFFERRANGEN","N=-1,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df5=c.css(hfcode,"NAME,DIFFERRANGEN","N=-5,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df10=c.css(hfcode,"NAME,DIFFERRANGEN","N=-10,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df20=c.css(hfcode,"NAME,DIFFERRANGEN","N=-20,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df60=c.css(hfcode,"NAME,DIFFERRANGEN","N=-60,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df120=c.css(hfcode,"NAME,DIFFERRANGEN","N=-120,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df250=c.css(hfcode,"NAME,DIFFERRANGEN","N=-250,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
     # 数据合并
     dfb=pd.concat([df1,df5,df10,df20,df60,df120,df250],names=None,axis=1,ignore_index=True)
     # 数据筛选
     # 删除无用列
-    dfb.drop(dfb.columns[[0,3,4,6,7,9,10,12,13,15,16,18,19]],axis = 1,inplace = True)
+    dfb.drop(dfb.columns[[0,1,4,5,6,8,9,10,12,13,14,16,17,18,20,21,22,24,25,26]],axis = 1,inplace = True)
     # 变更列名
     dfb.columns=['行业风格指数', '当日涨幅', '累计5日涨幅', '累计10日涨幅', '累计20日涨幅', '累计60日涨幅', '累计120日涨幅', '累计250日涨幅']
     # 删除特定字符
-    dfb.行业风格指数 = dfb.行业风格指数.str.replace('(风格.中信)','')
+    dfb.行业风格指数 = dfb.行业风格指数.str.replace('\(风格.中信\)','')
     dfb.行业风格指数 = dfb.行业风格指数.str.replace(' ','')
     # 设置小数位
     dfb.当日涨幅=dfb.当日涨幅.map(lambda x:('%.1f')%x)
@@ -253,7 +259,7 @@ def hfzfb():
     fig.write_image(r'C:\xyzy\1lhjr\1scrb\hfzfb.png',scale=3)
 
 def zszf(code,field,n,replace1,replace2,text,image):
-    df=c.css(code,field,f"N={n},TradeDate="+date+",AdjustFlag=1,Ispandas=1") 
+    df=c.css(code,field,f"N={n},TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1") 
     df['NAME'] = df['NAME'].str.replace(replace1, '')
     df['NAME'] = df['NAME'].str.replace(replace2, '')
     fig = px.bar(df,x='NAME',y='DIFFERRANGEN',text='DIFFERRANGEN')
@@ -263,7 +269,7 @@ def zszf(code,field,n,replace1,replace2,text,image):
     fig.write_image(Fr'C:\xyzy\1lhjr\1scrb\{image}.png',scale=3)    
 
 def fgzf(code,field,n,replace1,replace2,text,image):
-    df=c.css(code,field,f"N={n},TradeDate="+date+",AdjustFlag=1,Ispandas=1") 
+    df=c.css(code,field,f"N={n},TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1") 
     df['NAME'] = df['NAME'].str.replace(replace1, '')
     df['NAME'] = df['NAME'].str.replace(replace2, '')
     fig = px.bar(df,x='NAME',y='DIFFERRANGEN',text='DIFFERRANGEN')
@@ -273,7 +279,7 @@ def fgzf(code,field,n,replace1,replace2,text,image):
     fig.write_image(Fr'C:\xyzy\1lhjr\1scrb\{image}.png',scale=3)
 
 def hyzf(code,field,n,replace1,replace2,text,image):
-    df=c.css(code,field,f"N={n},TradeDate="+date+",AdjustFlag=1,Ispandas=1") 
+    df=c.css(code,field,f"N={n},TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1") 
     df=df.sort_values(by="DIFFERRANGEN",ascending=False)
     df1=df.head(16)
     df2=df.tail(15)
@@ -287,22 +293,23 @@ def hyzf(code,field,n,replace1,replace2,text,image):
     fig.write_image(Fr'C:\xyzy\1lhjr\1scrb\{image}.png',scale=3)
 
 def bkzf(code,field,n,replace1,replace2,text,image):
-    df=c.css(code,field,f"N={n},TradeDate="+date+",AdjustFlag=1,Ispandas=1") 
+    df=c.css(code,field,f"N={n},TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1") 
     df=df.sort_values(by="DIFFERRANGEN",ascending=False)
-    df1=df.head(30)
-    df2=df.tail(30)
+    df=df[~df['NAME'].isin(["昨日涨停","昨日连板","昨日触板","昨日连板_含一字","昨日涨停_含一字"])]
+    df1=df.head(20)
+    df2=df.tail(20)
     df=pd.concat([df1,df2],names=None,axis=0,ignore_index=True)
     df['NAME'] = df['NAME'].str.replace(replace1, '')
     df['NAME'] = df['NAME'].str.replace(replace2, '')
     fig = px.bar(df,x='NAME',y='DIFFERRANGEN',text='DIFFERRANGEN')
     fig.update_traces(texttemplate='%{text:.0f}',textposition='inside',marker=dict(color=np.where(np.array(df['DIFFERRANGEN'])>0,'red','limegreen'))) 
     fig.update_layout(width=1200,height=600,title={'text': text,'y':0.98,'x':0.5,'xanchor': 'center','yanchor': 'top'},title_font_size=35,
-                    font_size=12,title_font_color='red',showlegend=False,xaxis_title=None,yaxis_title=None,xaxis_tickangle=-45)
+                    font_size=18,title_font_color='red',showlegend=False,xaxis_title=None,yaxis_title=None,xaxis_tickangle=-45)
     fig.write_image(Fr'C:\xyzy\1lhjr\1scrb\{image}.png',scale=3)
 
 def zj(code,replace1,replace2,text,image):
-    # 板块主力净流入资金 
-    df=c.css(code,"NAME,NETINFLOW","TradeDate="+date+",AdjustFlag=1,Ispandas=1")
+    # 主力净流入资金 
+    df=c.css(code,"NAME,NETINFLOW","TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
     df['NAME'] = df['NAME'].str.replace(replace1, '')
     df['NAME'] = df['NAME'].str.replace(replace2, '')
     df['NETINFLOW']=df['NETINFLOW']/100000000
@@ -312,17 +319,76 @@ def zj(code,replace1,replace2,text,image):
                     font_size=20,title_font_color='red',showlegend=False,xaxis_title=None,yaxis_title=None)
     fig.write_image(Fr'C:\xyzy\1lhjr\1scrb\{image}.png',scale=3)
 
-def bkzj(code,replace1,replace2,text,image):
+def bkzj(code,replace1,replace2,text,image,d1,d2):
     # 板块主力净流入资金 
-    df=c.css(code,"NAME,NETINFLOW","TradeDate="+date+",AdjustFlag=1,Ispandas=1")
+    df=c.css(code,"NAME,NETINFLOW","TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
     df=df.sort_values(by="NETINFLOW",ascending=False)
+    df=df[~df['NAME'].isin(["昨日涨停","昨日连板","昨日触板","昨日连板_含一字","昨日涨停_含一字","融资融券","富时罗素","标准普尔","预盈预增","MSCI中国","深成500",
+            "华为概念","中证500","预亏预减"])]
+    df1=df.head(d1)
+    df2=df.tail(d2)
+    df=pd.concat([df1,df2],names=None,axis=0,ignore_index=True)
     df['NAME'] = df['NAME'].str.replace(replace1, '')
     df['NAME'] = df['NAME'].str.replace(replace2, '')
     df['NETINFLOW']=df['NETINFLOW']/100000000
     fig = px.bar(df,x='NAME',y='NETINFLOW',text='NETINFLOW')
     fig.update_traces(texttemplate='%{text:.0f}',textposition='inside',marker=dict(color=np.where(np.array(df['NETINFLOW'])>0,'red','limegreen'))) 
     fig.update_layout(width=1200,height=600,title={'text': text,'y':0.98,'x':0.5,'xanchor': 'center','yanchor': 'top'},title_font_size=35,
-                    font_size=12,title_font_color='red',showlegend=False,xaxis_title=None,yaxis_title=None,xaxis_tickangle=-45)
+                    font_size=18,title_font_color='red',showlegend=False,xaxis_title=None,yaxis_title=None,xaxis_tickangle=-45)
+    fig.write_image(Fr'C:\xyzy\1lhjr\1scrb\{image}.png',scale=3)
+
+def zj3(code,replace1,replace2,text,image):
+    # 主力净流入资金
+    date0 = c.getdate(""+date+"", -0, "Market=CNSESH").Data[0]
+    date1 = c.getdate(""+date+"", -1, "Market=CNSESH").Data[0]
+    date2 = c.getdate(""+date+"", -2, "Market=CNSESH").Data[0]
+    df0=c.css(code,"NAME,NETINFLOW","TradeDate="+date0+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df1=c.css(code,"NAME,NETINFLOW","TradeDate="+date1+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df2=c.css(code,"NAME,NETINFLOW","TradeDate="+date2+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df=pd.concat([df0,df1,df2],names=None,axis=1,ignore_index=True)
+    # 指定列求和
+    df['n']=df.iloc[:,[3,7,11]].sum(axis=1)
+    # 删除无用列
+    df.drop(df.columns[[0,1,3,4,5,6,7,8,9,10,11]],axis = 1,inplace = True)
+    # 变更列名
+    df.columns=['NAME', 'NETINFLOW']
+    df['NAME'] = df['NAME'].str.replace(replace1, '')
+    df['NAME'] = df['NAME'].str.replace(replace2, '')
+    df['NETINFLOW']=df['NETINFLOW']/100000000
+    fig = px.bar(df,x='NAME',y='NETINFLOW',text='NETINFLOW')
+    fig.update_traces(texttemplate='%{text:.0f}',textposition='inside',marker=dict(color=np.where(np.array(df['NETINFLOW'])>0,'red','limegreen'))) 
+    fig.update_layout(width=1200,height=600,title={'text': text,'y':0.98,'x':0.5,'xanchor': 'center','yanchor': 'top'},title_font_size=35,
+                    font_size=20,title_font_color='red',showlegend=False,xaxis_title=None,yaxis_title=None)
+    fig.write_image(Fr'C:\xyzy\1lhjr\1scrb\{image}.png',scale=3)
+
+def bkzj3(code,replace1,replace2,text,image,d1,d2):
+    # 主力净流入资金
+    date0 = c.getdate(""+date+"", -0, "Market=CNSESH").Data[0]
+    date1 = c.getdate(""+date+"", -1, "Market=CNSESH").Data[0]
+    date2 = c.getdate(""+date+"", -2, "Market=CNSESH").Data[0]
+    df0=c.css(code,"NAME,NETINFLOW","TradeDate="+date0+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df1=c.css(code,"NAME,NETINFLOW","TradeDate="+date1+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df2=c.css(code,"NAME,NETINFLOW","TradeDate="+date2+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    df=pd.concat([df0,df1,df2],names=None,axis=1,ignore_index=True)
+    # 指定列求和
+    df['n']=df.iloc[:,[3,7,11]].sum(axis=1)
+    # 删除无用列
+    df.drop(df.columns[[0,1,3,4,5,6,7,8,9,10,11]],axis = 1,inplace = True)
+    # 变更列名
+    df.columns=['NAME', 'NETINFLOW']
+    df=df.sort_values(by="NETINFLOW",ascending=False)
+    df=df[~df['NAME'].isin(["昨日涨停","昨日连板","昨日触板","昨日连板_含一字","昨日涨停_含一字","融资融券","富时罗素","标准普尔","预盈预增","MSCI中国","深成500",
+            "华为概念","中证500","预亏预减","HS300","上证180","证金持股","机构重仓","创业板综","深证100R","基金重仓","深股通","转债标的","AH股","上证50","沪股通"])]
+    df1=df.head(d1)
+    df2=df.tail(d2)
+    df=pd.concat([df1,df2],names=None,axis=0,ignore_index=True)
+    df['NAME'] = df['NAME'].str.replace(replace1, '')
+    df['NAME'] = df['NAME'].str.replace(replace2, '')
+    df['NETINFLOW']=df['NETINFLOW']/100000000
+    fig = px.bar(df,x='NAME',y='NETINFLOW',text='NETINFLOW')
+    fig.update_traces(texttemplate='%{text:.0f}',textposition='inside',marker=dict(color=np.where(np.array(df['NETINFLOW'])>0,'red','limegreen'))) 
+    fig.update_layout(width=1200,height=600,title={'text': text,'y':0.98,'x':0.5,'xanchor': 'center','yanchor': 'top'},title_font_size=35,
+                    font_size=18,title_font_color='red',showlegend=False,xaxis_title=None,yaxis_title=None,xaxis_tickangle=-45)
     fig.write_image(Fr'C:\xyzy\1lhjr\1scrb\{image}.png',scale=3)
 
 def to_pdf():
@@ -367,7 +433,7 @@ def to_pdf():
             ct = style['Heading1']
             # 单独设置样式相关属性
             ct.fontName = 'SimSun'      # 字体名
-            ct.fontSize = 15            # 字体大小
+            ct.fontSize = 10            # 字体大小
             ct.leading = 30             # 行间距
             ct.textColor = colors.red     # 字体颜色
             ct.alignment = 2    # 居中
@@ -384,7 +450,7 @@ def to_pdf():
             ct = style['Normal']
             # 单独设置样式相关属性
             ct.fontName = 'SimSun'  # 字体名
-            ct.fontSize = 20  # 字体大小
+            ct.fontSize = 15  # 字体大小
             ct.leading = 20  # 行间距
             ct.textColor = colors.red  # 字体颜色
             # 创建标题对应的段落，并且返回
@@ -414,17 +480,21 @@ def to_pdf():
         content.append(Graphs.draw_little_title('2.1 风格走势'))
         content.append(Graphs.draw_little_title('2.2 风格涨幅'))
         content.append(Graphs.draw_little_title('2.3 风格资金'))
-        content.append(Graphs.draw_little_title('2.2 行业风格涨幅'))
-        content.append(Graphs.draw_little_title('2.3 行业风格资金'))
-        content.append(Graphs.draw_little_title('3.1 行业涨幅'))
-        content.append(Graphs.draw_little_title('3.2 行业资金'))
-        content.append(Graphs.draw_little_title('4.1 概念涨幅'))
-        content.append(Graphs.draw_little_title('4.2 概念资金'))
+        content.append(Graphs.draw_little_title('3.1 行业风格涨幅'))
+        content.append(Graphs.draw_little_title('3.2 行业风格资金'))
+        content.append(Graphs.draw_little_title('4.1 一级行业涨幅'))
+        content.append(Graphs.draw_little_title('4.2 一级行业资金'))
+        content.append(Graphs.draw_little_title('5.1 二级行业涨幅'))
+        content.append(Graphs.draw_little_title('5.2 二级行业资金'))
+        content.append(Graphs.draw_little_title('6.1 概念涨幅'))
+        content.append(Graphs.draw_little_title('6.2 概念资金'))
 
         
         # content.append(Graphs.draw_little_title('★1.1 指数走势'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\zzqzzs20.png'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\zzqzzs3.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\zszs20.png'))
-        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\zszs.png'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\zszs3.png'))
         # content.append(Graphs.draw_little_title('★1.2 指数涨幅'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\zszfb.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\zszf1.png'))
@@ -435,7 +505,8 @@ def to_pdf():
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\zszf120.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\zszf250.png'))
         # content.append(Graphs.draw_little_title('★1.3 指数资金'))
-        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\zszj.png'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\zszj0.png'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\zszj3.png'))
 
 
         # content.append(Graphs.draw_little_title('★2.1 风格走势'))
@@ -451,12 +522,13 @@ def to_pdf():
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\fgzf120.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\fgzf250.png'))
         # content.append(Graphs.draw_little_title('★2.3 风格资金'))
-        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\fgzj.png'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\fgzj0.png'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\fgzj3.png'))
 
-        # content.append(Graphs.draw_little_title('★2.1 行业风格走势'))
+        # content.append(Graphs.draw_little_title('★3.1 行业风格走势'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hfzs20.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hfzs3.png'))
-        # content.append(Graphs.draw_little_title('★2.2 风格涨幅'))
+        # content.append(Graphs.draw_little_title('★3.2 行业风格涨幅'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hfzfb.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hfzf1.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hfzf5.png'))
@@ -465,10 +537,11 @@ def to_pdf():
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hfzf60.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hfzf120.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hfzf250.png'))
-        # content.append(Graphs.draw_little_title('★2.3 风格资金'))
-        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hfzj.png'))
+        # content.append(Graphs.draw_little_title('★3.3 行业风格资金'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hfzj0.png'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hfzj3.png'))
 
-        # content.append(Graphs.draw_little_title('★3.1 一级行业涨幅'))
+        # content.append(Graphs.draw_little_title('★4.1 一级行业涨幅'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hyzf1.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hyzf5.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hyzf10.png'))
@@ -476,10 +549,11 @@ def to_pdf():
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hyzf60.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hyzf120.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hyzf250.png'))
-        # content.append(Graphs.draw_little_title('★3.2 一级行业资金'))
-        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hyzj.png'))
+        # content.append(Graphs.draw_little_title('★4.2 一级行业资金'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hyzj0.png'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hyzj3.png'))
 
-        # content.append(Graphs.draw_little_title('★3.1 二级行业涨幅'))
+        # content.append(Graphs.draw_little_title('★5.1 二级行业涨幅'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hy2zf1.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hy2zf5.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hy2zf10.png'))
@@ -487,18 +561,20 @@ def to_pdf():
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hy2zf60.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hy2zf120.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hy2zf250.png'))
-        # content.append(Graphs.draw_little_title('★3.2 二级行业资金'))
-        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hy2zj.png'))
+        # content.append(Graphs.draw_little_title('★5.2 二级行业资金'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hy2zj0.png'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\hy2zj3.png'))
 
-        # content.append(Graphs.draw_little_title('★4.1 概念涨幅'))
+        # content.append(Graphs.draw_little_title('★6.1 概念涨幅'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\gnzf1.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\gnzf5.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\gnzf10.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\gnzf60.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\gnzf120.png'))
         content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\gnzf250.png'))
-        # content.append(Graphs.draw_little_title('★4.2 概念资金'))
-        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\gnzj.png'))
+        # content.append(Graphs.draw_little_title('★6.2 概念资金'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\gnzj0.png'))
+        content.append(Graphs.draw_img(r'C:\xyzy\1lhjr\1scrb\gnzj3.png'))
 
         content.append(Graphs.draw_title2('数据来源：Choice  报告工具：Python'))
 
@@ -506,61 +582,64 @@ def to_pdf():
         doc = SimpleDocTemplate(r'C:\xyzy\1lhjr\1scrb\ribao.pdf', pagesize=letter)
         doc.build(content)
 
+# 中证全指走势
+zzqzzs('2000-01-01',3,'中证全指20年走势','zzqzzs20')
+zzqzzs('2022-01-01',1,'中证全指近期走势','zzqzzs3')
 # 指数走势
-zszs('2000-01-01',3,'中证全指20年走势','zszs20')
-zszs('2022-01-01',1,'中证全指近期走势','zszs')
+zs(zscode,'2005-01-01',3,'指数20年走势','zszs20')
+zs(zscode,'2020-01-01',1,'指数 3年走势','zszs3')
 # 指数涨幅表
 zszfb()
 # 指数涨幅
 for i in offday:
     fgzf(zscode,"NAME,DIFFERRANGEN",i,' ','指数',f'指数{-i}日涨幅%',f'zszf{-i}')
 # 指数主力净流入
-i=-1
-zj(zscode,' ','指数',f'指数{-i}日主力净流入(亿元）',f'zszj')
+zj(zscode,' ','指数',f'指数当日主力净流入(亿元）',f'zszj0')
+zj3(zscode,' ','指数',f'指数3日主力净流入(亿元）',f'zszj3')
 
 # 风格走势
-fgzs(fgcode,'2005-01-01',3,'风格20年走势','fgzs20')
-fgzs(fgcode,'2020-01-01',1,'风格 3年走势','fgzs3')
+zs(fgcode,'2005-01-01',3,'风格20年走势','fgzs20')
+zs(fgcode,'2020-01-01',1,'风格 3年走势','fgzs3')
 # 风格涨幅表
 fgzfb()
 # 风格涨幅
 for i in offday:
     fgzf(fgcode,"NAME,DIFFERRANGEN",i,'巨潮','指数',f'风格{-i}日涨幅%',f'fgzf{-i}')
 # 风格主力净流入
-i=-1
-zj(fgcode,'巨潮','指数',f'风格{-i}日主力净流入(亿元）',f'fgzj')
+zj(fgcode,'巨潮','指数',f'风格当日主力净流入(亿元）',f'fgzj0')
+zj3(fgcode,'巨潮','指数',f'风格3日主力净流入(亿元）',f'fgzj3')
 
 # 行业风格走势
-fgzs(hfcode,'2005-01-01',3,'行业风格20年走势','hfzs20')
-fgzs(hfcode,'2020-01-01',1,'行业风格 3年走势','hfzs3')
+zs(hfcode,'2005-01-01',3,'行业风格20年走势','hfzs20')
+zs(hfcode,'2020-01-01',1,'行业风格 3年走势','hfzs3')
 # 行业风格涨幅表
 hfzfb()
 # 行业风格涨幅
 for i in offday:
-    fgzf(hfcode,"NAME,DIFFERRANGEN",i,'(风格.中信)',' ',f'行业风格{-i}日涨幅%',f'hfzf{-i}')
+    fgzf(hfcode,"NAME,DIFFERRANGEN",i,'\(风格.中信\)',' ',f'行业风格{-i}日涨幅%',f'hfzf{-i}')
 # 行业风格主力净流入
-i=-1
-zj(hfcode,'(风格.中信)',' ',f'行业风格{-i}日主力净流入(亿元）',f'hfzj')
+zj(hfcode,'(风格.中信)',' ',f'行业风格当日主力净流入(亿元）',f'hfzj0')
+zj3(hfcode,'(风格.中信)',' ',f'行业风格3日主力净流入(亿元）',f'hfzj3')
 
 # 行业涨幅 申万一级行业指数
 for i in offday:
     hyzf(hycode,"NAME,DIFFERRANGEN",i,'申万一级','指数',f'一级行业{-i}日涨幅%',f'hyzf{-i}')
 # 行业主力净流入
-i=-1
-bkzj(hycode,'申万一级','指数',f'一级行业{-i}日主力净流入(亿元）',f'hyzj')
+bkzj(hycode,'申万一级','指数',f'一级行业当日主力净流入(亿元）',f'hyzj0',16,15)
+bkzj3(hycode,'申万一级','指数',f'一级行业3日主力净流入(亿元）',f'hyzj3',16,15)
 
 # 行业涨幅 申万二级行业指数
 for i in offday:
     bkzf(hy2code,"NAME,DIFFERRANGEN",i,'申万二级','指数',f'二级行业{-i}日涨幅%',f'hy2zf{-i}')
 # 行业主力净流入
-i=-1
-bkzj(hy2code,'申万二级','指数',f'二级行业{-i}日主力净流入(亿元）',f'hy2zj')
+bkzj(hy2code,'申万二级','指数',f'二级行业当日主力净流入(亿元）',f'hy2zj0',20,20)
+bkzj3(hy2code,'申万二级','指数',f'二级行业3日主力净流入(亿元）',f'hy2zj3',20,20)
     
 # 概念涨幅
 for i in offday:
     bkzf(gncode,"NAME,DIFFERRANGEN",i,' ',' ',f'概念{-i}日涨幅%',f'gnzf{-i}')
 # 概念主力净流入
-i=-1
-bkzj(gncode,' ',' ',f'概念{-i}日主力净流入(亿元）',f'gnzj')
+bkzj(gncode,' ',' ',f'概念当日主力净流入(亿元）',f'gnzj0',20,20)
+bkzj3(gncode,' ',' ',f'概念3日主力净流入(亿元）',f'gnzj3',20,20)
 
 to_pdf()
