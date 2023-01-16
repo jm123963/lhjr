@@ -22,12 +22,10 @@ loginResult = c.start("ForceLogin=1", '')
 
 # 当前时间
 date = datetime.today().strftime("%Y-%m-%d")
-# 当前交易日
-offday=[-1,-5,-10,-20,-60,-120,-250]
-fgcode="000985.CSI,399314.SZ,399316.SZ,399370.SZ,399371.SZ"
 
-#df=c.css(fgcode,"DIFFERRANGERECENT1M","")
-df=c.css(fgcode,"DIFFERRANGEN","N=5,TradeDate=2022-11-11,AdjustFlag=1,Ispandas=1")
+fgcode="399373.SZ,399377.SZ,399372.SZ,399376.SZ"
+
+# 风格PB
+df=c.css('801030.SWI','SHORTNAME','2013-01-01',"TradeDate="+date+",DelType=1,Rowindex=none,Ispandas=1")
+
 print(df)
-fig = px.bar(df,x=df.index,y='DIFFERRANGEN')
-fig.show()

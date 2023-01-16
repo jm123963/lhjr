@@ -84,6 +84,9 @@ gncode = "861001.EI,861003.EI,861004.EI,861005.EI,861007.EI,861008.EI,861009.EI,
         861438.EI,861439.EI,861440.EI,861441.EI,861442.EI,861443.EI,861444.EI,861445.EI,861446.EI,861447.EI,861448.EI,861449.EI,861450.EI,861451.EI,861452.EI,\
         861453.EI,861454.EI,861455.EI,861456.EI,861457.EI,861458.EI,861459.EI,861460.EI,861461.EI,861462.EI,861463.EI,861464.EI,861465.EI,861466.EI,861467.EI,\
         861468.EI,861469.EI,861470.EI,861471.EI,861472.EI,861473.EI"
+replace={'000985.CSI':'中证全指','000300.SH':'沪深300','000905.SH':'中证500','399303.SZ':'国证2000','399373.SZ':'大盘价值',
+        '399373.SZ':'大盘价值','399377.SZ':'小盘价值','399372.SZ':'大盘成长','399376.SZ':'小盘成长','CI005917.CI':'金融',
+        'CI005918.CI':'周期','CI005919.CI':'消费','CI005920.CI':'成长','CI005921.CI':'稳定'}
 
 def zzqzzs(start,period,title,image):
     # 指数 开盘价 收盘价 最高价 最低价 成交量
@@ -112,19 +115,7 @@ def zzqzzs(start,period,title,image):
 def zs(code,days,period,text,image):
     # 走势
     df=c.csd(code,"CLOSE",days,""+date+"",f"period={period},adjustflag=3,curtype=1,order=1,market=CNSESH,Rowindex=none,Ispandas=1")
-    df.CODES = df.CODES.str.replace('000985.CSI','中证全指')
-    df.CODES = df.CODES.str.replace('000300.SH','沪深300')
-    df.CODES = df.CODES.str.replace('000905.SH','中证500')
-    df.CODES = df.CODES.str.replace('399303.SZ','国证2000')
-    df.CODES = df.CODES.str.replace('399373.SZ','大盘价值')
-    df.CODES = df.CODES.str.replace('399377.SZ','小盘价值')
-    df.CODES = df.CODES.str.replace('399372.SZ','大盘成长')
-    df.CODES = df.CODES.str.replace('399376.SZ','小盘成长')
-    df.CODES = df.CODES.str.replace('CI005917.CI','金融')
-    df.CODES = df.CODES.str.replace('CI005918.CI','周期')
-    df.CODES = df.CODES.str.replace('CI005919.CI','消费')
-    df.CODES = df.CODES.str.replace('CI005920.CI','成长')
-    df.CODES = df.CODES.str.replace('CI005921.CI','稳定')
+    df.CODES = df.CODES.replace(replace)
     fig = px.line(df,x='DATES', y='CLOSE',color=df.CODES)
     fig.update_layout(xaxis = dict(tickmode='linear',tick0 = 1,dtick = 24),width=1200,height=600,title={'text': text,'y':1,'x':0.5,'xanchor': 'center',
                     'yanchor': 'top'},title_font_size=35,font_size=15,title_font_color='red',xaxis_title=None,yaxis_title=None,xaxis_tickangle=-45,
@@ -141,6 +132,8 @@ def zszfb():
     df60=c.css(zscode,"NAME,DIFFERRANGEN","N=-60,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
     df120=c.css(zscode,"NAME,DIFFERRANGEN","N=-120,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
     df250=c.css(zscode,"NAME,DIFFERRANGEN","N=-250,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    # 缺失值赋0
+    df1=df1.fillna(0)
     # 数据合并
     dfb=pd.concat([df1,df5,df10,df20,df60,df120,df250],names=None,axis=1,ignore_index=True)
     # 数据筛选
@@ -183,6 +176,8 @@ def fgzfb():
     df60=c.css(fgcode,"NAME,DIFFERRANGEN","N=-60,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
     df120=c.css(fgcode,"NAME,DIFFERRANGEN","N=-120,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
     df250=c.css(fgcode,"NAME,DIFFERRANGEN","N=-250,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    # 缺失值赋0
+    df1=df1.fillna(0)
     # 数据合并
     dfb=pd.concat([df1,df5,df10,df20,df60,df120,df250],names=None,axis=1,ignore_index=True)
     # 数据筛选
@@ -225,6 +220,8 @@ def hfzfb():
     df60=c.css(hfcode,"NAME,DIFFERRANGEN","N=-60,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
     df120=c.css(hfcode,"NAME,DIFFERRANGEN","N=-120,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
     df250=c.css(hfcode,"NAME,DIFFERRANGEN","N=-250,TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    # 缺失值赋0
+    df1=df1.fillna(0)
     # 数据合并
     dfb=pd.concat([df1,df5,df10,df20,df60,df120,df250],names=None,axis=1,ignore_index=True)
     # 数据筛选
@@ -270,6 +267,8 @@ def zszf(code,field,n,replace1,replace2,text,image):
 
 def fgzf(code,field,n,replace1,replace2,text,image):
     df=c.css(code,field,f"N={n},TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1") 
+    # 缺失值赋0
+    df=df.fillna(0)
     df['NAME'] = df['NAME'].str.replace(replace1, '')
     df['NAME'] = df['NAME'].str.replace(replace2, '')
     fig = px.bar(df,x='NAME',y='DIFFERRANGEN',text='DIFFERRANGEN')
@@ -280,6 +279,8 @@ def fgzf(code,field,n,replace1,replace2,text,image):
 
 def hyzf(code,field,n,replace1,replace2,text,image):
     df=c.css(code,field,f"N={n},TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1") 
+    # 缺失值赋0
+    df=df.fillna(0)
     df=df.sort_values(by="DIFFERRANGEN",ascending=False)
     df1=df.head(16)
     df2=df.tail(15)
@@ -293,7 +294,9 @@ def hyzf(code,field,n,replace1,replace2,text,image):
     fig.write_image(Fr'C:\xyzy\1lhjr\1scrb\{image}.png',scale=3)
 
 def bkzf(code,field,n,replace1,replace2,text,image):
-    df=c.css(code,field,f"N={n},TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1") 
+    df=c.css(code,field,f"N={n},TradeDate="+date+",AdjustFlag=1,Rowindex=none,Ispandas=1")
+    # 缺失值赋0
+    df=df.fillna(0) 
     df=df.sort_values(by="DIFFERRANGEN",ascending=False)
     df=df[~df['NAME'].isin(["昨日涨停","昨日连板","昨日触板","昨日连板_含一字","昨日涨停_含一字"])]
     df1=df.head(20)
